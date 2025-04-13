@@ -26,25 +26,86 @@ export default function SessionProvider({
 }) {
   const [session, setSession] = useState<Session | null>(initialSession);
   const [status, setStatus] = useState<'authenticated' | 'unauthenticated' | 'loading'>('loading');
+  const [sessionLoaded, setSessionLoaded] = useState(false);
 
+  // Load session on mount
   useEffect(() => {
+    console.log('SessionProvider mounted, loading session from localStorage');
+    
     // Browser-only code
     if (typeof window !== 'undefined') {
-      // Get session from localStorage on client-side
-      const clientSession = authUtils.getSession();
-      setSession(clientSession);
-      setStatus(clientSession ? 'authenticated' : 'unauthenticated');
+      try {
+        // Get session from localStorage on client-side
+        const clientSession = authUtils.getSession();
+        console.log('Session from localStorage:', clientSession ? 'found' : 'not found');
+        
+        setSession(clientSession);
+        setStatus(clientSession ? 'authenticated' : 'unauthenticated');
+        setSessionLoaded(true);
+      } catch (error) {
+        console.error('Error loading session:', error);
+        setStatus('unauthenticated');
+        setSessionLoaded(true);
+      }
+    }
+  }, []);
+  
+  // Listen for auth state change events
+  useEffect(() => {
+    const handleAuthChange = (event: CustomEvent) => {
+      console.log('Auth state changed:', event.detail);
+      
+      try {
+        const updatedSession = authUtils.getSession();
+        console.log('Session after auth change:', updatedSession ? 'authenticated' : 'unauthenticated');
+        
+        setSession(updatedSession);
+        setStatus(updatedSession ? 'authenticated' : 'unauthenticated');
+      } catch (error) {
+        console.error('Error updating session from auth event:', error);
+        setStatus('unauthenticated');
+      }
+    };
+    
+    // Add event listener for auth state changes
+    if (typeof window !== 'undefined') {
+      window.addEventListener('auth-state-changed', handleAuthChange as EventListener);
+      
+      // Clean up
+      return () => {
+        window.removeEventListener('auth-state-changed', handleAuthChange as EventListener);
+      };
     }
   }, []);
 
+  // Update the session
   const update = async () => {
+    console.log('Updating session');
     if (typeof window === 'undefined') return null;
     
-    const updatedSession = authUtils.getSession();
-    setSession(updatedSession);
-    setStatus(updatedSession ? 'authenticated' : 'unauthenticated');
-    return updatedSession;
+    try {
+      const updatedSession = authUtils.getSession();
+      console.log('Updated session:', updatedSession ? 'found' : 'not found');
+      
+      setSession(updatedSession);
+      setStatus(updatedSession ? 'authenticated' : 'unauthenticated');
+      return updatedSession;
+    } catch (error) {
+      console.error('Error updating session:', error);
+      setStatus('unauthenticated');
+      return null;
+    }
   };
+
+  // Debug current session state
+  useEffect(() => {
+    console.log('Session state changed:', { 
+      status, 
+      loaded: sessionLoaded,
+      user: session?.user?.name,
+      role: session?.user?.role
+    });
+  }, [session, status, sessionLoaded]);
 
   return (
     <SessionContext.Provider value={{ session, status, update }}>

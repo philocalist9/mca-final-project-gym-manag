@@ -16,6 +16,7 @@ export default function SignupPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   
   // Check if already logged in
   useEffect(() => {
@@ -30,14 +31,36 @@ export default function SignupPage() {
       ...prev,
       [name]: value
     }));
+    
+    // Clear password error when user types in the password field
+    if (name === 'password') {
+      setPasswordError('');
+    }
+  };
+
+  // Validate password
+  const validatePassword = (password) => {
+    if (password.length < 6) {
+      return 'Password should be at least 6 characters long';
+    }
+    return '';
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setPasswordError('');
 
-    // Add validation logic here
+    // Validate password length
+    const passwordValidationError = validatePassword(formData.password);
+    if (passwordValidationError) {
+      setPasswordError(passwordValidationError);
+      setIsLoading(false);
+      return;
+    }
+
+    // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setIsLoading(false);
@@ -45,34 +68,24 @@ export default function SignupPage() {
     }
 
     try {
-      // Register the user using the API endpoint
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role // Pass the role string directly
-        }),
+      // Register using authUtils directly (client-side implementation)
+      await authUtils.register({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role // Pass the role string directly
       });
       
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
-      
-      // Login after successful registration
-      await authUtils.login(formData.email, formData.password);
+      console.log('Registration and login successful');
       
       // Redirect to dashboard after successful registration
-      router.push('/dashboard');
+      // Add a small delay to allow the session to be properly set up
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 300);
     } catch (err) {
       setError(err.message || 'Failed to create account. Please try again.');
-      console.error(err);
+      console.error('Registration error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -148,8 +161,16 @@ export default function SignupPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                  className={`appearance-none block w-full px-3 py-2 border ${
+                    passwordError ? 'border-red-500 dark:border-red-700' : 'border-gray-300 dark:border-gray-600'
+                  } rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm`}
                 />
+                {passwordError && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{passwordError}</p>
+                )}
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Password must be at least 6 characters long
+                </p>
               </div>
             </div>
 

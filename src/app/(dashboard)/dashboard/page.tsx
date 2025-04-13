@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useSession } from '@/components/SessionProvider';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { UserRole } from '@/models/ClientUser';
 
 // Dashboard stat card component
 const StatCard = ({ title, value, icon, color, link }: { 
@@ -49,7 +51,102 @@ interface Activity {
   date: string;
 }
 
-const MemberDashboardPage = () => {
+// Main dashboard page with redirection based on user role
+export default function DashboardPage() {
+  const { session, status } = useSession();
+  const router = useRouter();
+  const [redirectAttempted, setRedirectAttempted] = useState(false);
+
+  // Redirect based on user role
+  useEffect(() => {
+    console.log('Dashboard mount, session status:', status, 'user role:', session?.user?.role);
+    
+    // Don't redirect again if we've already tried
+    if (redirectAttempted) return;
+    
+    // Wait until authentication status is determined
+    if (status === 'loading') return;
+    
+    if (status === 'unauthenticated') {
+      console.log('Not authenticated, redirecting to login');
+      setRedirectAttempted(true);
+      router.push('/login');
+      return;
+    }
+    
+    // Handle authenticated users with appropriate roles
+    if (status === 'authenticated' && session?.user) {
+      const role = session.user.role;
+      console.log('User authenticated with role:', role);
+      
+      // Non-member roles are redirected to their specific dashboards
+      if (role !== UserRole.MEMBER) {
+        setRedirectAttempted(true);
+        
+        switch (role) {
+          case UserRole.ADMIN:
+            console.log('Redirecting admin to admin dashboard');
+            router.push('/dashboard/admin');
+            break;
+          case UserRole.TRAINER:
+            console.log('Redirecting trainer to trainer dashboard');
+            router.push('/dashboard/trainer');
+            break;
+          case UserRole.GYM_OWNER:
+            console.log('Redirecting gym owner to admin dashboard');
+            router.push('/dashboard/admin');
+            break;
+        }
+      }
+    }
+  }, [status, session, router, redirectAttempted]);
+
+  // Handle loading state
+  if (status === 'loading') {
+    return (
+      <div className="h-[80vh] flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-4 border-t-indigo-600 border-indigo-200 rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Loading your dashboard...</p>
+      </div>
+    );
+  }
+  
+  // Handle unauthenticated state
+  if (status === 'unauthenticated') {
+    return (
+      <div className="h-[80vh] flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-4 border-t-indigo-600 border-indigo-200 rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Redirecting to login...</p>
+      </div>
+    );
+  }
+  
+  // Handle redirection in progress for non-member users
+  if (session?.user?.role !== UserRole.MEMBER && redirectAttempted) {
+    return (
+      <div className="h-[80vh] flex flex-col items-center justify-center">
+        <div className="w-16 h-16 border-4 border-t-indigo-600 border-indigo-200 rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Loading your specialized dashboard...</p>
+      </div>
+    );
+  }
+  
+  // Member dashboard view
+  if (session?.user?.role === UserRole.MEMBER) {
+    return <MemberDashboard />;
+  }
+  
+  // Fallback
+  return (
+    <div className="h-[80vh] flex flex-col items-center justify-center">
+      <div className="w-16 h-16 border-4 border-t-indigo-600 border-indigo-200 rounded-full animate-spin mb-4"></div>
+      <p className="text-gray-600 dark:text-gray-400">Preparing your dashboard...</p>
+    </div>
+  );
+}
+
+// Member dashboard component with member-specific functionality
+const MemberDashboard = () => {
   const { session } = useSession();
   const [stats, setStats] = useState({
     workoutCompletions: 0,
@@ -62,13 +159,14 @@ const MemberDashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Fetch dashboard data
+  // Fetch member dashboard data
   useEffect(() => {
+    console.log('MemberDashboard mounted, fetching data');
     const fetchDashboardData = async () => {
       try {
-        // In a real app, you would fetch this data from your API
-        // For now, we'll use dummy data
+        // In a real app, you'd fetch from an API - using mock data for now
         setTimeout(() => {
+          // Set example stats
           setStats({
             workoutCompletions: 12,
             appointmentsScheduled: 2,
@@ -76,12 +174,14 @@ const MemberDashboardPage = () => {
             activeWorkoutPlans: 3,
           });
           
+          // Set example workouts
           setUpcomingWorkouts([
             { id: 1, name: 'Chest & Triceps', date: 'Today, 6:00 PM', trainer: 'Alex Smith' },
             { id: 2, name: 'Leg Day', date: 'Tomorrow, 7:30 AM', trainer: 'Emma Johnson' },
             { id: 3, name: 'Back & Biceps', date: 'Thu, 6:00 PM', trainer: 'Alex Smith' },
           ]);
           
+          // Set example activities
           setRecentActivities([
             { id: 1, type: 'workout', name: 'Completed 30 min Cardio', date: '2 hours ago' },
             { id: 2, type: 'appointment', name: 'Nutrition Consultation', date: 'Yesterday' },
@@ -90,7 +190,8 @@ const MemberDashboardPage = () => {
           ]);
           
           setIsLoading(false);
-        }, 1000);
+          console.log('Member dashboard data loaded');
+        }, 600);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         setError('Failed to load dashboard data');
@@ -103,7 +204,7 @@ const MemberDashboardPage = () => {
 
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full flex items-center justify-center p-8">
         <div className="w-12 h-12 border-4 border-t-indigo-600 border-indigo-200 rounded-full animate-spin"></div>
       </div>
     );
@@ -367,6 +468,4 @@ const MemberDashboardPage = () => {
       </div>
     </div>
   );
-};
-
-export default MemberDashboardPage; 
+}; 
