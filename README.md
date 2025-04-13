@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gym Management System
+
+A full-stack web application built with Next.js, MongoDB, and TypeScript for gym owners and staff to manage gym operations efficiently.
+
+## Features
+
+- 🔐 **Authentication & User Roles**: Secure login with role-based access (Gym Owner, Admin, Trainer)
+- 👥 **Client Management**: Add, update, view, and delete client profiles
+- 🏋️ **Membership Management**: Track membership details, renewal dates, and status
+- 📊 **Health Tracking**: Record and visualize client health metrics over time
+- 📋 **Workout & Diet Plans**: Create and assign personalized workout and diet plans to clients
+- ✅ **Attendance Tracking**: Mark attendance with optional QR code scanning
+- 📱 **Responsive Dashboard**: Modern UI built with Tailwind CSS
+- 📧 **Automated Notifications**: Email reminders for membership renewals
+
+## Tech Stack
+
+- **Frontend**: Next.js, React, Tailwind CSS, Recharts
+- **Backend**: Node.js (built into Next.js API routes)
+- **Database**: MongoDB
+- **Authentication**: NextAuth.js
+- **Email**: Nodemailer
+- **Scheduled Tasks**: node-cron
+- **TypeScript**: For type safety and better developer experience
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js (v18 or newer)
+- MongoDB (local or Atlas connection)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository
+   ```bash
+   git clone https://github.com/yourusername/gym-management-system.git
+   cd gym-management-system
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Install dependencies
+   ```bash
+   npm install
+   ```
 
-## Learn More
+3. Set up environment variables
+   Create a `.env.local` file in the root directory with the following variables:
+   ```
+   # NextAuth
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your-secret-key-change-in-production
 
-To learn more about Next.js, take a look at the following resources:
+   # MongoDB
+   MONGODB_URI=mongodb://localhost:27017/gym-management
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   # Email (for nodemailer)
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_SECURE=false
+   EMAIL_USER=your-email@gmail.com
+   EMAIL_PASS=your-app-password
+   EMAIL_FROM=no-reply@yourgym.com
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   # App URL (used for links in emails)
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   ```
 
-## Deploy on Vercel
+4. Seed the database with an initial admin user
+   ```bash
+   npm run seed
+   ```
+   This will create an admin user with:
+   - Email: admin@example.com
+   - Password: admin123
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+5. Start the development server
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+6. Start the background jobs (for email notifications)
+   ```bash
+   npm run jobs
+   ```
+
+7. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+### Login Credentials
+
+After running the seed script, you can log in with:
+- **Email**: admin@example.com
+- **Password**: admin123
+
+## Project Structure
+
+- `/src/app`: Next.js pages and layouts
+- `/src/components`: Reusable UI components
+- `/src/lib`: Utility libraries (database connection, etc.)
+- `/src/models`: MongoDB schema models
+- `/src/utils`: Utility functions (auth, email, etc.)
+- `/public`: Static assets
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
