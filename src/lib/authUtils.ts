@@ -28,6 +28,7 @@ export const authUtils = {
     }
 
     try {
+      console.log('Attempting login for:', email);
       // Call the login API
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -38,14 +39,16 @@ export const authUtils = {
       });
 
       const data = await response.json();
+      console.log('Login response:', data);
 
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
 
-      // Store token and user data in localStorage
+      // Store token and session data in localStorage
       localStorage.setItem(AUTH_TOKEN_KEY, data.token);
-      localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+      localStorage.setItem(USER_KEY, JSON.stringify(data.session));
+      console.log('Session stored in localStorage:', data.session);
 
       return data.user;
     } catch (error) {
@@ -69,12 +72,16 @@ export const authUtils = {
     const userJSON = localStorage.getItem(USER_KEY);
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     
+    console.log('Getting session - Token exists:', !!token);
+    console.log('Getting session - User exists:', !!userJSON);
+    
     if (!userJSON || !token) {
       return null;
     }
     
     try {
       const user = JSON.parse(userJSON);
+      console.log('Session user:', user);
       return {
         user,
         expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now

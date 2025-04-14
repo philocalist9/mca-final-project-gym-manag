@@ -56,10 +56,16 @@ export async function POST(request: NextRequest) {
     
     // Format user data for response
     const userResponse = {
-      id: user._id,
+      id: user._id.toString(),
       name: user.name,
       email: user.email,
       role: user.role,
+    };
+    
+    // Create session data
+    const sessionData = {
+      user: userResponse,
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
     };
     
     return NextResponse.json(
@@ -67,7 +73,8 @@ export async function POST(request: NextRequest) {
         success: true, 
         message: 'Login successful',
         user: userResponse,
-        token
+        token,
+        session: sessionData
       },
       { status: 200 }
     );

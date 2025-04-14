@@ -30,19 +30,25 @@ export default function SessionProvider({
   useEffect(() => {
     // Browser-only code
     if (typeof window !== 'undefined') {
+      console.log('SessionProvider: Initializing...');
       // Get session from localStorage on client-side
       const clientSession = authUtils.getSession();
+      console.log('SessionProvider: Retrieved session from localStorage:', clientSession);
       setSession(clientSession);
       setStatus(clientSession ? 'authenticated' : 'unauthenticated');
+      console.log('SessionProvider: Updated status to:', clientSession ? 'authenticated' : 'unauthenticated');
     }
   }, []);
 
   const update = async () => {
     if (typeof window === 'undefined') return null;
     
+    console.log('SessionProvider: Updating session...');
     const updatedSession = authUtils.getSession();
+    console.log('SessionProvider: Updated session data:', updatedSession);
     setSession(updatedSession);
     setStatus(updatedSession ? 'authenticated' : 'unauthenticated');
+    console.log('SessionProvider: Updated status to:', updatedSession ? 'authenticated' : 'unauthenticated');
     return updatedSession;
   };
 
