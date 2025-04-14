@@ -6,14 +6,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { Bell, LogOut, Menu, X, Sun, Moon } from 'lucide-react';
+import { authUtils } from '@/lib/authUtils';
 
 const MemberLayout = ({ children }: { children: React.ReactNode }) => {
-  const { session, signOut } = useSession();
+  const { session } = useSession();
   const { theme, setTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navigationItems = [
     { name: 'Dashboard', href: '/dashboard/member', icon: '🏠' },
+    { name: 'Profile', href: '/dashboard/profile', icon: '👤' },
     { name: 'Workout Plans', href: '/dashboard/member/workouts', icon: '💪' },
     { name: 'Class Schedule', href: '/dashboard/member/schedule', icon: '📅' },
     { name: 'Progress Tracking', href: '/dashboard/member/progress', icon: '📊' },
@@ -21,6 +23,12 @@ const MemberLayout = ({ children }: { children: React.ReactNode }) => {
     { name: 'Payments/Billing', href: '/dashboard/member/billing', icon: '💰' },
     { name: 'Account Settings', href: '/dashboard/member/settings', icon: '⚙️' },
   ];
+
+  // Handle sign out
+  const handleSignOut = () => {
+    authUtils.logout();
+    window.location.href = '/login';
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -62,21 +70,23 @@ const MemberLayout = ({ children }: { children: React.ReactNode }) => {
               {/* Profile dropdown */}
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <Image
-                    className="h-8 w-8 rounded-full"
-                    src={session?.user?.image || '/default-avatar.png'}
-                    alt="Profile"
-                    width={32}
-                    height={32}
-                  />
+                  <Link href="/dashboard/profile">
+                    <Image
+                      className="h-8 w-8 rounded-full"
+                      src={(session?.user as any)?.image || '/default-avatar.svg'}
+                      alt="Profile"
+                      width={32}
+                      height={32}
+                    />
+                  </Link>
                 </div>
                 <div className="hidden md:block">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                  <Link href="/dashboard/profile" className="text-sm font-medium text-gray-700 dark:text-gray-200">
                     {session?.user?.name}
-                  </div>
+                  </Link>
                 </div>
                 <button
-                  onClick={() => signOut()}
+                  onClick={handleSignOut}
                   className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   <LogOut className="h-5 w-5" />
