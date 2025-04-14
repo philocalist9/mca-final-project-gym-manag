@@ -10,15 +10,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
 
+  // Debug session state
+  React.useEffect(() => {
+    console.log('DashboardLayout - Session status:', status);
+    console.log('DashboardLayout - Session data:', session);
+  }, [session, status]);
+
   // Redirect to login if not authenticated
   React.useEffect(() => {
     if (status === 'unauthenticated') {
+      console.log('DashboardLayout - Redirecting to login');
       router.push('/login');
     }
   }, [status, router]);
 
   // Show loading state while checking auth
   if (status === 'loading') {
+    console.log('DashboardLayout - Showing loading state');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
@@ -50,6 +58,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       { name: 'Settings', href: '/dashboard/settings', icon: '⚙️' }
     );
   }
+
+  console.log('DashboardLayout - Rendering with session:', session);
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">

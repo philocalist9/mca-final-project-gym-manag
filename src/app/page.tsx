@@ -1,8 +1,11 @@
 'use client';
 
-import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import AnimatedNavButton from '@/components/AnimatedNavButton';
 
 export default function Home() {
+  const pathname = usePathname();
+
   return (
     <main className="bg-white dark:bg-gray-900">
       {/* Hero Section */}
@@ -19,18 +22,12 @@ export default function Home() {
                   Achieve your fitness goals with our state-of-the-art facilities, expert trainers, and personalized programs.
                 </p>
                 <div className="mt-6 flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:justify-center lg:justify-start">
-                  <Link
-                    href="/signup"
-                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 md:py-4 md:text-lg md:px-10 sm:w-auto"
-                  >
+                  <AnimatedNavButton href="/signup" icon="🚀">
                     Get Started
-                  </Link>
-                  <Link
-                    href="/about"
-                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-200 dark:hover:bg-indigo-800 md:py-4 md:text-lg md:px-10 sm:mt-0 sm:ml-3 sm:w-auto"
-                  >
+                  </AnimatedNavButton>
+                  <AnimatedNavButton href="/about" icon="📚">
                     Learn More
-                  </Link>
+                  </AnimatedNavButton>
                 </div>
               </div>
             </div>

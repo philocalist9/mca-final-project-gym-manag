@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import NavigationWrapper from "@/components/NavigationWrapper";
 import Footer from "@/components/Footer";
 import { initializeAuth } from "@/lib/authUtils";
+import SessionProvider from "@/components/SessionProvider";
 
 interface ClientLayoutProps {
   children: ReactNode;
@@ -40,18 +41,20 @@ export default function ClientLayout({
   
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <div className="flex flex-col min-h-screen">
-        <NavigationWrapper />
-        <main className="flex-grow">
-          {/* Only render children once the component is mounted client-side */}
-          {mounted ? children : 
-            <div className="flex items-center justify-center min-h-screen">
-              <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          }
-        </main>
-        <Footer />
-      </div>
+      <SessionProvider session={null}>
+        <div className="flex flex-col min-h-screen">
+          <NavigationWrapper />
+          <main className="flex-grow">
+            {/* Only render children once the component is mounted client-side */}
+            {mounted ? children : 
+              <div className="flex items-center justify-center min-h-screen">
+                <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            }
+          </main>
+          <Footer />
+        </div>
+      </SessionProvider>
     </ThemeProvider>
   );
 } 
