@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MongoDB Test Form</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    h1 {
+      color: #333;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+    
+    .form-container {
+      margin-bottom: 40px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+    
+    .form-section {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+    
+    #response {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f5f5f5;
+      overflow-x: auto;
+    }
+    
+    .tab-container {
+      display: flex;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #f1f1f1;
+      border: 1px solid #ccc;
+      border-bottom: none;
+      border-radius: 5px 5px 0 0;
+      margin-right: 5px;
+    }
+    
+    .tab.active {
+      background-color: #fff;
+      border-bottom: 1px solid white;
+      margin-bottom: -1px;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .exercise-form {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+    
+    .add-exercise {
+      background-color: #2196F3;
+    }
+    
+    .add-exercise:hover {
+      background-color: #0b7dda;
+    }
+    
+    .remove-exercise {
+      background-color: #f44336;
+      margin-top: 10px;
+    }
+    
+    .remove-exercise:hover {
+      background-color: #d32f2f;
+    }
+    
+    .user-id-container {
+      background-color: #e8f5e9;
+      border: 1px solid #c8e6c9;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .user-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .user-card {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      width: calc(50% - 5px);
+      box-sizing: border-box;
+    }
+    
+    .user-card p {
+      margin: 5px 0;
+      word-break: break-all;
+    }
+    
+    .user-card button {
+      background-color: #2196F3;
+      margin-top: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>MongoDB Test Form</h1>
+  
+  <!-- User ID Helper -->
+  <div class="user-id-container">
+    <h2>Available User IDs</h2>
+    <p>Click the buttons below to auto-fill form fields with user IDs.</p>
+    <button id="load-users" onclick="loadUsers()">Load Users</button>
+    <div id="user-list" class="user-list">
+      <p>Click the button above to load user IDs from the database.</p>
+    </div>
+  </div>
+  
+  <div class="tab-container">
+    <div class="tab active" onclick="openTab(event, 'workout-tab')">Workout</div>
+    <div class="tab" onclick="openTab(event, 'measurement-tab')">Measurement</div>
+    <div class="tab" onclick="openTab(event, 'appointment-tab')">Appointment</div>
+  </div>
+  
+  <!-- Workout Form -->
+  <div id="workout-tab" class="tab-content active">
+    <div class="form-container">
+      <h2>Log a Workout</h2>
+      <form id="workout-form">
+        <div class="form-section">
+          <label for="workout-user-id">User ID</label>
+          <input type="text" id="workout-user-id" name="userId" required>
+          
+          <label for="workout-name">Workout Name</label>
+          <input type="text" id="workout-name" name="workoutName" required>
+          
+          <label for="workout-date">Date</label>
+          <input type="datetime-local" id="workout-date" name="date">
+          
+          <label for="workout-duration">Duration (minutes)</label>
+          <input type="number" id="workout-duration" name="duration" min="1" required>
+          
+          <label for="workout-intensity">Intensity</label>
+          <select id="workout-intensity" name="intensity" required>
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+          
+          <label for="workout-calories">Calories Burned</label>
+          <input type="number" id="workout-calories" name="caloriesBurned" min="0">
+          
+          <label for="workout-location">Location</label>
+          <input type="text" id="workout-location" name="location" value="Gym">
+        </div>
+        
+        <div class="form-section">
+          <label>Exercises</label>
+          <div id="exercises-container">
+            <div class="exercise-form">
+              <label for="exercise-name-0">Exercise Name</label>
+              <input type="text" id="exercise-name-0" name="exercises[0].name" required>
+              
+              <label for="exercise-muscle-0">Muscle Group</label>
+              <select id="exercise-muscle-0" name="exercises[0].muscleGroup" required>
+                <option value="Chest">Chest</option>
+                <option value="Back">Back</option>
+                <option value="Legs">Legs</option>
+                <option value="Shoulders">Shoulders</option>
+                <option value="Arms">Arms</option>
+                <option value="Core">Core</option>
+              </select>
+              
+              <label for="exercise-sets-0">Sets</label>
+              <input type="number" id="exercise-sets-0" name="exercises[0].sets" min="1" value="3" required>
+              
+              <label for="exercise-reps-0">Reps</label>
+              <input type="number" id="exercise-reps-0" name="exercises[0].reps" min="1" value="10" required>
+              
+              <label for="exercise-weight-0">Weight (kg)</label>
+              <input type="number" id="exercise-weight-0" name="exercises[0].weight" min="0" step="0.5">
+              
+              <label for="exercise-rest-0">Rest Time (seconds)</label>
+              <input type="number" id="exercise-rest-0" name="exercises[0].restTime" min="0" value="60" required>
+              
+              <button type="button" class="remove-exercise" onclick="removeExercise(this)">Remove Exercise</button>
+            </div>
+          </div>
+          <button type="button" class="add-exercise" onclick="addExercise()">Add Exercise</button>
+        </div>
+        
+        <button type="submit">Submit Workout</button>
+      </form>
+      <div id="workout-response" class="response"></div>
+    </div>
+  </div>
+  
+  <!-- Measurement Form -->
+  <div id="measurement-tab" class="tab-content">
+    <div class="form-container">
+      <h2>Log a Measurement</h2>
+      <form id="measurement-form">
+        <div class="form-section">
+          <label for="measurement-user-id">User ID</label>
+          <input type="text" id="measurement-user-id" name="userId" required>
+          
+          <label for="measurement-date">Date</label>
+          <input type="date" id="measurement-date" name="date">
+          
+          <label for="measurement-weight">Weight (kg)</label>
+          <input type="number" id="measurement-weight" name="weight" min="20" step="0.1" required>
+          
+          <label for="measurement-body-fat">Body Fat (%)</label>
+          <input type="number" id="measurement-body-fat" name="bodyFat" min="1" max="60" step="0.1">
+          
+          <label for="measurement-chest">Chest (cm)</label>
+          <input type="number" id="measurement-chest" name="chest" min="30" step="0.1">
+          
+          <label for="measurement-waist">Waist (cm)</label>
+          <input type="number" id="measurement-waist" name="waist" min="30" step="0.1">
+          
+          <label for="measurement-hips">Hips (cm)</label>
+          <input type="number" id="measurement-hips" name="hips" min="30" step="0.1">
+          
+          <label for="measurement-thighs">Thighs (cm)</label>
+          <input type="number" id="measurement-thighs" name="thighs" min="20" step="0.1">
+          
+          <label for="measurement-arms">Arms (cm)</label>
+          <input type="number" id="measurement-arms" name="arms" min="15" step="0.1">
+          
+          <label for="measurement-shoulders">Shoulders (cm)</label>
+          <input type="number" id="measurement-shoulders" name="shoulders" min="30" step="0.1">
+          
+          <label for="measurement-notes">Notes</label>
+          <textarea id="measurement-notes" name="notes" rows="3"></textarea>
+        </div>
+        
+        <button type="submit">Submit Measurement</button>
+      </form>
+      <div id="measurement-response" class="response"></div>
+    </div>
+  </div>
+  
+  <!-- Appointment Form -->
+  <div id="appointment-tab" class="tab-content">
+    <div class="form-container">
+      <h2>Schedule an Appointment</h2>
+      <form id="appointment-form">
+        <div class="form-section">
+          <label for="appointment-client-id">Client ID</label>
+          <input type="text" id="appointment-client-id" name="clientId" required>
+          
+          <label for="appointment-trainer-id">Trainer ID</label>
+          <input type="text" id="appointment-trainer-id" name="trainerId" required>
+          
+          <label for="appointment-date">Date</label>
+          <input type="date" id="appointment-date" name="date" required>
+          
+          <label for="appointment-start-time">Start Time</label>
+          <input type="time" id="appointment-start-time" name="startTime" required>
+          
+          <label for="appointment-end-time">End Time</label>
+          <input type="time" id="appointment-end-time" name="endTime">
+          
+          <label for="appointment-type">Appointment Type</label>
+          <select id="appointment-type" name="type" required>
+            <option value="personal_training">Personal Training</option>
+            <option value="consultation">Consultation</option>
+            <option value="fitness_assessment">Fitness Assessment</option>
+            <option value="nutrition_counseling">Nutrition Counseling</option>
+            <option value="group_class">Group Class</option>
+            <option value="other">Other</option>
+          </select>
+          
+          <label for="appointment-location">Location</label>
+          <input type="text" id="appointment-location" name="location" value="Gym Training Room">
+          
+          <label for="appointment-notes">Notes</label>
+          <textarea id="appointment-notes" name="notes" rows="3"></textarea>
+        </div>
+        
+        <button type="submit">Schedule Appointment</button>
+      </form>
+      <div id="appointment-response" class="response"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Tab functionality
+    function openTab(evt, tabName) {
+      const tabContents = document.getElementsByClassName("tab-content");
+      for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove("active");
+      }
+      
+      const tabs = document.getElementsByClassName("tab");
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove("active");
+      }
+      
+      document.getElementById(tabName).classList.add("active");
+      evt.currentTarget.classList.add("active");
+    }
+    
+    // User ID Helper functionality
+    async function loadUsers() {
+      const userListContainer = document.getElementById('user-list');
+      userListContainer.innerHTML = "Loading...";
+      
+      try {
+        const response = await fetch('/api/users?limit=10');
+        const data = await response.json();
+        
+        if (data.success && data.users && data.users.length > 0) {
+          userListContainer.innerHTML = '';
+          
+          // Separate users by role
+          const clients = data.users.filter(user => user.role === 'member');
+          const trainers = data.users.filter(user => user.role === 'trainer');
+          
+          // Add clients first
+          clients.forEach(user => {
+            const userCard = document.createElement('div');
+            userCard.className = 'user-card';
+            userCard.innerHTML = `
+              <p><strong>${user.name}</strong> (Client)</p>
+              <p><small>ID: ${user._id}</small></p>
+              <button onclick="fillClientId('${user._id}')">Use as Client</button>
+            `;
+            userListContainer.appendChild(userCard);
+          });
+          
+          // Add trainers
+          trainers.forEach(user => {
+            const userCard = document.createElement('div');
+            userCard.className = 'user-card';
+            userCard.innerHTML = `
+              <p><strong>${user.name}</strong> (Trainer)</p>
+              <p><small>ID: ${user._id}</small></p>
+              <button onclick="fillTrainerId('${user._id}')">Use as Trainer</button>
+            `;
+            userListContainer.appendChild(userCard);
+          });
+        } else {
+          userListContainer.innerHTML = 'No users found in database.';
+        }
+      } catch (error) {
+        userListContainer.innerHTML = `Error loading users: ${error.message}`;
+      }
+    }
+    
+    function fillClientId(id) {
+      document.getElementById('workout-user-id').value = id;
+      document.getElementById('measurement-user-id').value = id;
+      document.getElementById('appointment-client-id').value = id;
+    }
+    
+    function fillTrainerId(id) {
+      document.getElementById('appointment-trainer-id').value = id;
+    }
+    
+    // Exercise form functionality
+    let exerciseCount = 1;
+    
+    function addExercise() {
+      const container = document.getElementById("exercises-container");
+      const newExercise = document.createElement("div");
+      newExercise.className = "exercise-form";
+      
+      const exerciseIndex = exerciseCount;
+      newExercise.innerHTML = `
+        <label for="exercise-name-${exerciseIndex}">Exercise Name</label>
+        <input type="text" id="exercise-name-${exerciseIndex}" name="exercises[${exerciseIndex}].name" required>
+        
+        <label for="exercise-muscle-${exerciseIndex}">Muscle Group</label>
+        <select id="exercise-muscle-${exerciseIndex}" name="exercises[${exerciseIndex}].muscleGroup" required>
+          <option value="Chest">Chest</option>
+          <option value="Back">Back</option>
+          <option value="Legs">Legs</option>
+          <option value="Shoulders">Shoulders</option>
+          <option value="Arms">Arms</option>
+          <option value="Core">Core</option>
+        </select>
+        
+        <label for="exercise-sets-${exerciseIndex}">Sets</label>
+        <input type="number" id="exercise-sets-${exerciseIndex}" name="exercises[${exerciseIndex}].sets" min="1" value="3" required>
+        
+        <label for="exercise-reps-${exerciseIndex}">Reps</label>
+        <input type="number" id="exercise-reps-${exerciseIndex}" name="exercises[${exerciseIndex}].reps" min="1" value="10" required>
+        
+        <label for="exercise-weight-${exerciseIndex}">Weight (kg)</label>
+        <input type="number" id="exercise-weight-${exerciseIndex}" name="exercises[${exerciseIndex}].weight" min="0" step="0.5">
+        
+        <label for="exercise-rest-${exerciseIndex}">Rest Time (seconds)</label>
+        <input type="number" id="exercise-rest-${exerciseIndex}" name="exercises[${exerciseIndex}].restTime" min="0" value="60" required>
+        
+        <button type="button" class="remove-exercise" onclick="removeExercise(this)">Remove Exercise</button>
+      `;
+      
+      container.appendChild(newExercise);
+      exerciseCount++;
+    }
+    
+    function removeExercise(button) {
+      const exerciseForm = button.parentNode;
+      if (document.getElementsByClassName("exercise-form").length > 1) {
+        exerciseForm.remove();
+      } else {
+        alert("You must have at least one exercise.");
+      }
+    }
+    
+    // Form submission handlers
+    document.getElementById('workout-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const formObject = {};
+      
+      // Handle nested exercises array
+      const exercises = [];
+      
+      for (const [key, value] of formData.entries()) {
+        if (key.includes('exercises[')) {
+          const match = key.match(/exercises\[(\d+)\]\.(.+)/);
+          if (match) {
+            const index = parseInt(match[1]);
+            const field = match[2];
+            
+            if (!exercises[index]) {
+              exercises[index] = {};
+            }
+            
+            exercises[index][field] = field === 'sets' || field === 'reps' || field === 'restTime' ? 
+              parseInt(value) : field === 'weight' ? parseFloat(value) : value;
+          }
+        } else {
+          formObject[key] = value;
+        }
+      }
+      
+      // Remove empty slots in exercises array (from removed exercises)
+      formObject.exercises = exercises.filter(e => e);
+      
+      try {
+        const response = await fetch('/api/user-input/workout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formObject),
+        });
+        
+        const result = await response.json();
+        document.getElementById('workout-response').textContent = JSON.stringify(result, null, 2);
+      } catch (error) {
+        document.getElementById('workout-response').textContent = 'Error: ' + error.message;
+      }
+    });
+    
+    document.getElementById('measurement-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const formObject = {};
+      
+      for (const [key, value] of formData.entries()) {
+        if (value) {  // Only include non-empty fields
+          if (['weight', 'bodyFat', 'chest', 'waist', 'hips', 'thighs', 'arms', 'shoulders'].includes(key)) {
+            formObject[key] = parseFloat(value);
+          } else {
+            formObject[key] = value;
+          }
+        }
+      }
+      
+      try {
+        const response = await fetch('/api/user-input/measurements', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formObject),
+        });
+        
+        const result = await response.json();
+        document.getElementById('measurement-response').textContent = JSON.stringify(result, null, 2);
+      } catch (error) {
+        document.getElementById('measurement-response').textContent = 'Error: ' + error.message;
+      }
+    });
+    
+    document.getElementById('appointment-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const formObject = {};
+      
+      for (const [key, value] of formData.entries()) {
+        if (value) {  // Only include non-empty fields
+          formObject[key] = value;
+        }
+      }
+      
+      // Format date and times for the API
+      if (formObject.date && formObject.startTime) {
+        const startDateTime = new Date(`${formObject.date}T${formObject.startTime}`);
+        formObject.startTime = startDateTime.toISOString();
+      }
+      
+      if (formObject.date && formObject.endTime) {
+        const endDateTime = new Date(`${formObject.date}T${formObject.endTime}`);
+        formObject.endTime = endDateTime.toISOString();
+      }
+      
+      try {
+        const response = await fetch('/api/user-input/appointment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formObject),
+        });
+        
+        const result = await response.json();
+        document.getElementById('appointment-response').textContent = JSON.stringify(result, null, 2);
+      } catch (error) {
+        document.getElementById('appointment-response').textContent = 'Error: ' + error.message;
+      }
+    });
+    
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Pre-fill the date fields with today's date
+      const today = new Date();
+      const todayISO = today.toISOString().split('T')[0];
+      
+      document.getElementById('measurement-date').value = todayISO;
+      document.getElementById('appointment-date').value = todayISO;
+      
+      // Set workout date to current date and time
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      
+      document.getElementById('workout-date').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    });
+  </script>
+</body>
+</html> 
