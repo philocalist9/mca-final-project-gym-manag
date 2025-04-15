@@ -1,5 +1,4 @@
 import { UserRole } from '@/models/ClientUser';
-import { useState, useEffect } from 'react';
 
 // Types
 export interface User {
@@ -39,12 +38,36 @@ export const authUtils = {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
+      console.log('Login response status:', response.status);
+      console.log('Login response headers:', Object.fromEntries(response.headers.entries()));
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response received:', text);
+        throw new Error('Server returned non-JSON response');
       }
 
-      const { user, token } = await response.json();
+      const data = await response.json();
+      console.log('Login response data:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      const { user, token } = data;
+      
+      // Validate response data
+      if (!user || !token) {
+        console.error('Invalid response data:', data);
+        throw new Error('Invalid response from server');
+      }
+
+      if (!user.id || !user.name || !user.email || !user.role) {
+        console.error('Invalid user data:', user);
+        throw new Error('Invalid user data received');
+      }
       
       // Store token and user data in localStorage
       localStorage.setItem(AUTH_TOKEN_KEY, token);
@@ -60,6 +83,9 @@ export const authUtils = {
       return user;
     } catch (error) {
       console.error('Login error:', error);
+      // Clear any existing session data on error
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
       throw error;
     }
   },
@@ -149,42 +175,21 @@ export const authUtils = {
       console.error('Registration error:', error);
       throw error;
     }
-  }
-};
+  },
 
-// DO NOT USE THIS DIRECTLY - Use the hook exported from SessionProvider.tsx instead
-// This function is kept only for compatibility, but the actual implementation
-// is in the SessionProvider component
-export function useSession() {
-  console.warn('Direct import of useSession from authUtils is deprecated. Please import it from SessionProvider component instead.');
-  
-  const [sessionData, setSessionData] = useState<Session | null>(null);
-  const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
-  
-  useEffect(() => {
-    // Only run in browser environment
-    if (typeof window !== 'undefined') {
-      const session = authUtils.getSession();
-      setSessionData(session);
-      setStatus(session ? 'authenticated' : 'unauthenticated');
-    }
-  }, []);
-  
-  const update = async () => {
+  getUserRole: (): UserRole | null => {
     if (typeof window === 'undefined') return null;
-    
-    const updatedSession = authUtils.getSession();
-    setSessionData(updatedSession);
-    setStatus(updatedSession ? 'authenticated' : 'unauthenticated');
-    return updatedSession;
-  };
-  
-  return {
-    session: sessionData,
-    status,
-    update
-  };
-}
+    const session = localStorage.getItem('session');
+    if (!session) return null;
+    try {
+      const parsedSession = JSON.parse(session);
+      return parsedSession.user?.role || null;
+    } catch (error) {
+      console.error('Error parsing session:', error);
+      return null;
+    }
+  },
+};
 
 // Initialize database with default users if needed
 export async function initializeAuth() {

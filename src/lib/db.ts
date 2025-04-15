@@ -1,9 +1,24 @@
 // Mock data provider for both server and client environments
 
 import mongoose from 'mongoose';
+import { PrismaClient } from '@prisma/client'
 
 // Keep track of connection status
 let isConnected = false;
+
+const prismaClientSingleton = () => {
+  return new PrismaClient()
+}
+
+declare global {
+  var prisma: undefined | ReturnType<typeof prismaClientSingleton>
+}
+
+const db = globalThis.prisma ?? prismaClientSingleton()
+
+if (process.env.NODE_ENV !== 'production') globalThis.prisma = db
+
+export { db }
 
 async function dbConnect() {
   // Return if already connected
