@@ -4,6 +4,7 @@ import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from '@/components/SessionProvider';
+import { UserRole } from '@/models/ClientUser';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { session, status } = useSession();
@@ -45,14 +46,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   // Admin & trainer specific navigation
-  if (session?.user?.role === 'admin' || session?.user?.role === 'trainer') {
+  if (session?.user?.role === UserRole.ADMIN || session?.user?.role === UserRole.TRAINER) {
     navigation.push(
       { name: 'Manage Members', href: '/dashboard/members', icon: '👥' }
     );
   }
 
   // Admin specific navigation
-  if (session?.user?.role === 'admin') {
+  if (session?.user?.role === UserRole.ADMIN) {
     navigation.push(
       { name: 'Manage Staff', href: '/dashboard/staff', icon: '👨‍💼' },
       { name: 'Settings', href: '/dashboard/settings', icon: '⚙️' }

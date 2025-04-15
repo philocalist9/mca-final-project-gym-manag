@@ -89,8 +89,8 @@ export default function DashboardPage() {
             router.push('/dashboard/admin');
             break;
           case UserRole.TRAINER:
-            console.log('Redirecting trainer to trainer dashboard');
-            router.push('/dashboard/trainer');
+            console.log('Redirecting trainer to trainer dashboard 2.0');
+            router.push('/dashboard2');
             break;
           case UserRole.GYM_OWNER:
             console.log('Redirecting gym owner to admin dashboard');

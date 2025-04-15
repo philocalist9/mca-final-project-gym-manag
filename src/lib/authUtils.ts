@@ -30,41 +30,21 @@ export const authUtils = {
     console.log('Attempting login for:', email);
 
     try {
-      // Simulate API call for development
-      // In a real app, replace this with your actual API call
-      const fakeLogin = (email: string, password: string): Promise<any> => {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => {
-            // For demo purposes, accept any email/password combo
-            // In production, this would validate against your backend
-            let defaultRole = UserRole.MEMBER;
-            
-            // Role determination based on email for testing purposes
-            if (email.includes('admin')) {
-              defaultRole = UserRole.ADMIN;
-            } else if (email.includes('trainer')) {
-              defaultRole = UserRole.TRAINER;
-            } else if (email.includes('owner')) {
-              defaultRole = UserRole.GYM_OWNER;
-            }
-            
-            const user = {
-              id: `user-${Math.floor(Math.random() * 1000)}`,
-              name: email.split('@')[0],
-              email,
-              role: defaultRole
-            };
-            
-            const token = `fake-jwt-token-${Math.random().toString(36).substring(2, 15)}`;
-            
-            resolve({ user, token });
-          }, 500);
-        });
-      };
-      
-      // Use the fake login for now
-      console.log('Performing login...');
-      const { user, token } = await fakeLogin(email, password);
+      // Make actual API call to login endpoint
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Login failed');
+      }
+
+      const { user, token } = await response.json();
       
       // Store token and user data in localStorage
       localStorage.setItem(AUTH_TOKEN_KEY, token);
@@ -146,32 +126,23 @@ export const authUtils = {
     console.log('Registering new user:', userData.email);
     
     try {
-      // Simulate API call for development
-      const fakeRegister = (userData: any): Promise<any> => {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => {
-            // Validate password length
-            if (userData.password.length < 6) {
-              reject(new Error('Password should be at least 6 characters long'));
-              return;
-            }
-            
-            const user = {
-              id: `user-${Math.floor(Math.random() * 1000)}`,
-              name: userData.name,
-              email: userData.email,
-              role: userData.role || UserRole.MEMBER
-            };
-            
-            resolve({ user });
-          }, 500);
-        });
-      };
+      // Make actual API call to register endpoint
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Registration failed');
+      }
+
+      const { user } = await response.json();
       
-      // Use fake register
-      await fakeRegister(userData);
-      
-      // Auto login
+      // Auto login after successful registration
       console.log('Registration successful, logging in...');
       return authUtils.login(userData.email, userData.password);
     } catch (error) {

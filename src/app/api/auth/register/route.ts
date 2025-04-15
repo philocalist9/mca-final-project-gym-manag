@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Map role string to valid role value
-    let userRole: string;
+    let userRole: UserRole;
     
     switch (role) {
       case 'admin':
