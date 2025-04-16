@@ -1,35 +1,45 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { authUtils } from '@/lib/authUtils';
+import { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { useSession } from '@/components/SessionProvider';
+import { UserRole } from '@/models/ClientUser';
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
-      // Check if user is already logged in
-      if (authUtils.isAuthenticated()) {
-        const userRole = authUtils.getUserRole();
-        console.log('Auth Layout - Current user role:', userRole);
+      if (status === 'authenticated' && session?.user) {
+        const userRole = session.user.role;
         
-        if (userRole === 'admin') {
-          console.log('Auth Layout - Redirecting to admin panel');
+        if (userRole === UserRole.OWNER) {
           router.push('/admin');
         } else {
-          console.log('Auth Layout - Redirecting to dashboard');
           router.push('/dashboard');
         }
+      } else {
+        setIsChecking(false);
       }
     };
-    
+
     checkAuth();
-  }, [router]);
+  }, [status, session, router]);
+
+  if (isChecking) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

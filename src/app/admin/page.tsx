@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react'
-import { useSession } from '@/hooks/useSession'
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import { useSession } from '@/components/SessionProvider'
+import { UserRole } from '@/models/ClientUser'
 import AdminSummaryCards from '@/components/admin/AdminSummaryCards'
 import RevenueChart from '@/components/admin/RevenueChart'
 import UserActivityChart from '@/components/admin/UserActivityChart'
@@ -22,7 +23,8 @@ interface TrainerStats {
 }
 
 export default function AdminDashboard() {
-  const { data, status } = useSession()
+  const { session, status } = useSession()
+  const router = useRouter()
   const [memberStats, setMemberStats] = useState<MemberStats>({
     totalMembers: 1230,
     activeMembers: 1100,
@@ -33,39 +35,35 @@ export default function AdminDashboard() {
     activeTrainers: 18,
     trainersWithAppointments: 15
   })
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // In a real app, fetch data here
-    // For now, use mock data
-    setLoading(false)
-  }, [])
+    if (status === 'unauthenticated') {
+      router.push('/login')
+    } else if (status === 'authenticated' && session?.user?.role !== UserRole.OWNER) {
+      router.push('/dashboard')
+    } else {
+      setIsLoading(false)
+    }
+  }, [status, session, router])
 
-  if (status === 'loading') {
+  if (status === 'loading' || isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="text-white">Loading...</div>
+        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
   }
 
-  if (!data) {
-    redirect('/login')
-  }
-
-  if (loading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <div className="text-white">Loading dashboard data...</div>
-      </div>
-    )
+  if (!session || session.user.role !== UserRole.OWNER) {
+    return null
   }
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-        <p className="text-gray-400">Welcome to your admin dashboard</p>
+        <h1 className="text-2xl font-bold text-white">Owner Dashboard</h1>
+        <p className="text-gray-400">Welcome to your gym management dashboard</p>
       </div>
 
       <AdminSummaryCards 
@@ -84,7 +82,7 @@ export default function AdminDashboard() {
 
       {/* Quick Links to Admin Features */}
       <div>
-        <h2 className="text-xl font-semibold text-white mb-4 mt-8">Admin Features</h2>
+        <h2 className="text-xl font-semibold text-white mb-4 mt-8">Management Features</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <a href="/admin/users" className="flex items-center p-4 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 transition">
             <span className="text-3xl mr-4">👥</span>

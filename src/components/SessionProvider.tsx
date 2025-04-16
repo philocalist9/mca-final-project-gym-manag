@@ -39,11 +39,17 @@ export default function SessionProvider({
         const clientSession = authUtils.getSession();
         console.log('Session from localStorage:', clientSession ? 'found' : 'not found');
         
-        setSession(clientSession);
-        setStatus(clientSession ? 'authenticated' : 'unauthenticated');
+        if (clientSession) {
+          setSession(clientSession);
+          setStatus('authenticated');
+        } else {
+          setSession(null);
+          setStatus('unauthenticated');
+        }
         setSessionLoaded(true);
       } catch (error) {
         console.error('Error loading session:', error);
+        setSession(null);
         setStatus('unauthenticated');
         setSessionLoaded(true);
       }
@@ -59,10 +65,16 @@ export default function SessionProvider({
         const updatedSession = authUtils.getSession();
         console.log('Session after auth change:', updatedSession ? 'authenticated' : 'unauthenticated');
         
-        setSession(updatedSession);
-        setStatus(updatedSession ? 'authenticated' : 'unauthenticated');
+        if (updatedSession) {
+          setSession(updatedSession);
+          setStatus('authenticated');
+        } else {
+          setSession(null);
+          setStatus('unauthenticated');
+        }
       } catch (error) {
         console.error('Error updating session from auth event:', error);
+        setSession(null);
         setStatus('unauthenticated');
       }
     };
@@ -87,11 +99,17 @@ export default function SessionProvider({
       const updatedSession = authUtils.getSession();
       console.log('Updated session:', updatedSession ? 'found' : 'not found');
       
-      setSession(updatedSession);
-      setStatus(updatedSession ? 'authenticated' : 'unauthenticated');
+      if (updatedSession) {
+        setSession(updatedSession);
+        setStatus('authenticated');
+      } else {
+        setSession(null);
+        setStatus('unauthenticated');
+      }
       return updatedSession;
     } catch (error) {
       console.error('Error updating session:', error);
+      setSession(null);
       setStatus('unauthenticated');
       return null;
     }

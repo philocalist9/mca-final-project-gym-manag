@@ -12,7 +12,7 @@ export default function SignupPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'member' // Default to member role
+    role: 'owner' // Set default role to owner
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -189,94 +189,6 @@ export default function SignupPage() {
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
                 />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Account type
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                    formData.role === 'member'
-                      ? 'bg-indigo-50 dark:bg-indigo-900 border-indigo-500 dark:border-indigo-400'
-                      : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
-                  }`}
-                  onClick={() => setFormData(prev => ({ ...prev, role: 'member' }))}
-                >
-                  <div className="flex items-center mb-2">
-                    <input
-                      type="radio"
-                      name="role"
-                      id="role-member"
-                      value="member"
-                      checked={formData.role === 'member'}
-                      onChange={handleChange}
-                      className="h-4 w-4 text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400"
-                    />
-                    <label htmlFor="role-member" className="ml-2 block text-sm font-medium text-gray-800 dark:text-white">
-                      Member
-                    </label>
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Join as a gym member to track your workouts and progress.
-                  </p>
-                </div>
-                
-                <div
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                    formData.role === 'trainer'
-                      ? 'bg-indigo-50 dark:bg-indigo-900 border-indigo-500 dark:border-indigo-400'
-                      : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
-                  }`}
-                  onClick={() => setFormData(prev => ({ ...prev, role: 'trainer' }))}
-                >
-                  <div className="flex items-center mb-2">
-                    <input
-                      type="radio"
-                      name="role"
-                      id="role-trainer"
-                      value="trainer"
-                      checked={formData.role === 'trainer'}
-                      onChange={handleChange}
-                      className="h-4 w-4 text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400"
-                    />
-                    <label htmlFor="role-trainer" className="ml-2 block text-sm font-medium text-gray-800 dark:text-white">
-                      Trainer
-                    </label>
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Create workout plans and manage client progress.
-                  </p>
-                </div>
-                
-                <div
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                    formData.role === 'admin'
-                      ? 'bg-indigo-50 dark:bg-indigo-900 border-indigo-500 dark:border-indigo-400'
-                      : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'
-                  }`}
-                  onClick={() => setFormData(prev => ({ ...prev, role: 'admin' }))}
-                >
-                  <div className="flex items-center mb-2">
-                    <input
-                      type="radio"
-                      name="role"
-                      id="role-admin"
-                      value="admin"
-                      checked={formData.role === 'admin'}
-                      onChange={handleChange}
-                      className="h-4 w-4 text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400"
-                    />
-                    <label htmlFor="role-admin" className="ml-2 block text-sm font-medium text-gray-800 dark:text-white">
-                      Admin
-                    </label>
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Manage members, trainers, and oversee gym operations.
-                  </p>
-                </div>
               </div>
             </div>
 
